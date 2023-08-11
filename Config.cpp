@@ -1,35 +1,60 @@
 #include "ConfigKeyRegister.cpp"
-#include "Cast.hpp"
+#include "Serialize.hpp"
 
-template<const StringLiteral filename>
-safini::Config<filename>::Config():
-    m_IniReader(std::string_view(filename.value, filename.size))
+template<const StringLiteral configName>
+safini::Config<configName>::Config(const std::string_view filename):
+    m_IniReader(filename)
 {
-    for(const auto& [section, name] : getRegisteredKeys<filename>())
+    for(const auto& [section, name, serializeFunc, destroyFunc] : _register::getRegisteredKeys<configName>())
     {
         const std::string key = std::string(section).append(1, '.').append(name);
 
         const auto param = m_IniReader.get(name, section);
         if(!param.has_value())
+            throw std::runtime_error(std::string("No parameter \'")
+                                         .append(section)
+                                         .append(1, '.')
+                                         .append(name)
+                                         .append("\' in config file \'")
+                                         .append(filename)
+                                         .append(1, '\''));
+        try
         {
-            const std::string str = std::string("No parameter ")
-                                        .append(section)
-                                        .append(1, '.')
-                                        .append(name)
-                                        .append(" in config file ")
-                                        .append(filename);
-            throw std::runtime_error(str);
+            m_KeysMap[key] = serializeFunc(param.value());
         }
-        m_KeysMap[key] = param.value();
+        catch(...)
+        {
+            throw std::runtime_error(std::string("Unable to convert \'")
+                                         .append(param.value())
+                                         .append("\' to whatever type it belongs to")
+                                         .append(" from config file \'")
+                                         .append(filename)
+                                         .append(1, '\''));
+        }
     }
 }
 
-template<const StringLiteral filename>
-template<typename ReturnType, const StringLiteral name, const StringLiteral section>
-ReturnType safini::Config<filename>::extract()
+template<const StringLiteral configName>
+safini::Config<configName>::~Config()
 {
-    (void)_register::_registerKey<filename, name, section>; //(void) supresses warning -Wunused-value
+    for(const auto& [section, name, serializeFunc, destroyFunc] : _register::getRegisteredKeys<configName>())
+    {
+        const std::string key = std::string(section).append(1, '.').append(name); //this may except in destructor and crash the program. I don't care tho
+        destroyFunc(m_KeysMap[key]);
+    }
+}
 
-    const std::string key = std::string(std::string_view(section)).append(1, '.').append(std::string_view(name));
-    return cast::selectiveCast<ReturnType>(m_KeysMap[key]);
+template<const StringLiteral configName>
+template<typename ReturnType, const StringLiteral name, const StringLiteral section>
+const ReturnType& safini::Config<configName>::extract() noexcept
+{
+    //(void) supresses warning -Wunused-value
+    (void)_register::_registerKey<configName,
+                                  name,
+                                  section,
+                                  serialize::getSerizlizeFunc<ReturnType>(),
+                                  serialize::getDestroyFunc<ReturnType>()>;
+
+    const std::string key = std::string(section).append(1, '.').append(name);
+    return *std::launder(reinterpret_cast<ReturnType*>(m_KeysMap[key].data()));
 }

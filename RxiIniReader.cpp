@@ -17,7 +17,7 @@ const char* RxiIniReader::read(const std::string_view name, const std::string_vi
     return ini_get(m_Config, section.data(), name.data());
 }
 
-std::optional<const std::string_view> RxiIniReader::get(const std::string_view name, const std::string_view section)
+std::optional<const std::string_view> RxiIniReader::get(const std::string_view name, const std::string_view section) noexcept
 {
     const char* param = read(name, section);
     if(!param)
