@@ -7,8 +7,6 @@ safini::Config<configName>::Config(const std::string_view filename):
 {
     for(const auto& [section, name, serializeFunc, destroyFunc] : _register::getRegisteredKeys<configName>())
     {
-        const std::string key = std::string(section).append(1, '.').append(name);
-
         const auto param = m_IniReader.get(name, section);
         if(!param.has_value())
             throw std::runtime_error(std::string("No parameter \'")
@@ -18,6 +16,8 @@ safini::Config<configName>::Config(const std::string_view filename):
                                          .append("\' in config file \'")
                                          .append(filename)
                                          .append(1, '\''));
+
+        const std::string key = std::string(section).append(1, '.').append(name);
         try
         {
             //brainfuck style emplacing element just not to call ~SelfDestroyingStorage() here(it may break things)
