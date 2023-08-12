@@ -17,10 +17,17 @@ public:
 
 int32_t main()
 {
-    safini::Config<"config1"> c("what.ini");
-    std::cout << c.extract<int, "num">() << std::endl;
-    std::cout << c.extract<const std::string_view, "eh", "lol">() << std::endl;
-
-    c.extract<Numbrr, "ok">();
+    try
+    {
+        safini::Config<"config1"> c("what.ini");
+        std::cout << c.extract<int, "num">() << std::endl;
+        std::cout << c.extract<const std::string, "eh", "lol">() << std::endl;
+        std::cout << c.extract<const std::string_view, "fail">() << std::endl;
+        c.extract<Numbrr, "ok">();
+    }
+    catch(const std::runtime_error& err)
+    {
+        std::cout << err.what() << std::endl;
+    }
     return 0;
 }

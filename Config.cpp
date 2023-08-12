@@ -20,7 +20,11 @@ safini::Config<configName>::Config(const std::string_view filename):
                                          .append(1, '\''));
         try
         {
-            m_KeysMap[key] = serializeFunc(param.value());
+            //brainfuck style emplacing element just not to call ~SelfDestroyingStorage() here(it may break things)
+            //ngl address sanitizer said nothing about that, but I'm paranoid
+            m_KeysMap.emplace(std::piecewise_construct,
+                              std::forward_as_tuple(key),
+                              std::forward_as_tuple(serializeFunc(param.value()), destroyFunc));
         }
         catch(...)
         {
@@ -31,16 +35,6 @@ safini::Config<configName>::Config(const std::string_view filename):
                                          .append(filename)
                                          .append(1, '\''));
         }
-    }
-}
-
-template<const StringLiteral configName>
-safini::Config<configName>::~Config()
-{
-    for(const auto& [section, name, serializeFunc, destroyFunc] : _register::getRegisteredKeys<configName>())
-    {
-        const std::string key = std::string(section).append(1, '.').append(name); //this may except in destructor and crash the program. I don't care tho
-        destroyFunc(m_KeysMap[key]);
     }
 }
 
@@ -56,5 +50,11 @@ const ReturnType& safini::Config<configName>::extract() noexcept
                                   serialize::getDestroyFunc<ReturnType>()>;
 
     const std::string key = std::string(section).append(1, '.').append(name);
-    return *std::launder(reinterpret_cast<ReturnType*>(m_KeysMap[key].data()));
+    return *std::launder(reinterpret_cast<ReturnType*>(m_KeysMap[key].m_Data.data()));
+}
+
+template<const StringLiteral configName>
+safini::Config<configName>::SelfDestroyingStorage::~SelfDestroyingStorage()
+{
+    destroyFunc(m_Data);
 }

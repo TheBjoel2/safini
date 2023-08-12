@@ -4,6 +4,7 @@
 #include <optional>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 namespace safini
 {
@@ -13,7 +14,6 @@ class Config
 {
 public:
     Config(const std::string_view filename);
-    ~Config();
 
     template<typename ReturnType,
              const StringLiteral name,
@@ -37,8 +37,17 @@ private:
     RxiIniReader m_IniReader;
 
     using FullKey = std::string;
-    using Value = std::vector<char>;
-    std::unordered_map<FullKey, Value> m_KeysMap{};
+    using Storage = std::vector<char>;
+
+    struct SelfDestroyingStorage
+    {
+        Storage m_Data;
+        std::function<void(std::vector<char>&)> destroyFunc;
+
+        ~SelfDestroyingStorage();
+    };
+
+    std::unordered_map<FullKey, SelfDestroyingStorage> m_KeysMap{};
 };
 
 }
