@@ -16,27 +16,24 @@ public:
     Config(const std::string_view filename);
 
     template<typename ReturnType,
-             const StringLiteral name,
-             const StringLiteral section = "">
+             const StringLiteral key>
     auto extract() noexcept
     -> const ReturnType&;
 
     template<typename ReturnType,
-             const StringLiteral name,
-             const StringLiteral section = "">
+             const StringLiteral key>
     auto extractOr(const ReturnType& fallbackValue) noexcept
     -> const ReturnType&;
 
     template<typename ReturnType,
-             const StringLiteral name,
-             const StringLiteral section = "">
+             const StringLiteral key>
     auto tryExtract() noexcept
     -> std::optional<const ReturnType&>;
 
 private:
     RxiIniReader m_IniReader;
 
-    using FullKey = std::string;
+    using FullKey = std::string_view;
     using Storage = std::vector<char>;
 
     struct SelfDestroyingStorage

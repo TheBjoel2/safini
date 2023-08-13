@@ -8,31 +8,27 @@ namespace safini
 //UPD: lol it also set on fire my microwave
 namespace _register
 {
-    using NameView    = std::string_view;
-    using SectionView = std::string_view;
+    using KeyView = std::string_view;
 
     template<const StringLiteral configName>
     auto& _RegisteredKeysVector()
     {
         //prevents some "static init order fiasco" by defining the static variable below inside a function
-        static std::vector<std::tuple<const SectionView,
-                                      const NameView,
+        static std::vector<std::tuple<const KeyView,
                                       std::function<std::vector<char>(const std::string_view)>,
                                       std::function<void(std::vector<char>&)>>> toReturn;
         return toReturn;
     }
 
     template<const StringLiteral configName,
-             const StringLiteral registeredName,
-             const StringLiteral registeredSection,
+             const StringLiteral registeredKey,
              auto serializeFunc,
              auto destroyFunc>
     static const auto _registerKey = std::invoke([]
     {
         _RegisteredKeysVector<configName>().emplace_back
         (
-            registeredSection,
-            registeredName,
+            registeredKey,
             serializeFunc,
             destroyFunc
         );

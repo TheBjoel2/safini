@@ -5,19 +5,21 @@ template<const StringLiteral configName>
 safini::Config<configName>::Config(const std::string_view filename):
     m_IniReader(filename)
 {
-    for(const auto& [section, name, serializeFunc, destroyFunc] : _register::getRegisteredKeys<configName>())
+    for(const auto& [key, serializeFunc, destroyFunc] : _register::getRegisteredKeys<configName>())
     {
+        const std::size_t i = key.find('.');
+        const bool hasSection = i != key.npos;
+        //totally safe string operations
+        const std::string name(hasSection ? std::next(std::begin(key), i+1) : std::begin(key), std::end(key));
+        const std::string section(std::begin(key), hasSection ? std::next(std::begin(key), i) : std::begin(key));
+
         const auto param = m_IniReader.get(name, section);
         if(!param.has_value())
             throw std::runtime_error(std::string("No parameter \'")
-                                         .append(section)
-                                         .append(1, '.')
-                                         .append(name)
+                                         .append(key)
                                          .append("\' in config file \'")
                                          .append(filename)
                                          .append(1, '\''));
-
-        const std::string key = std::string(section).append(1, '.').append(name);
         try
         {
             //brainfuck style emplacing element just not to call ~SelfDestroyingStorage() here(it may break things)
@@ -39,18 +41,16 @@ safini::Config<configName>::Config(const std::string_view filename):
 }
 
 template<const StringLiteral configName>
-template<typename ReturnType, const StringLiteral name, const StringLiteral section>
+template<typename ReturnType, const StringLiteral key>
 const ReturnType& safini::Config<configName>::extract() noexcept
 {
     //(void) supresses warning -Wunused-value
     (void)_register::_registerKey<configName,
-                                  name,
-                                  section,
+                                  key,
                                   serialize::getSerizlizeFunc<ReturnType>(),
                                   serialize::getDestroyFunc<ReturnType>()>;
 
-    const std::string key = std::string(section).append(1, '.').append(name);
-    return *std::launder(reinterpret_cast<ReturnType*>(m_KeysMap[key].m_Data.data()));
+    return *std::launder(reinterpret_cast<ReturnType*>(m_KeysMap[std::string_view(key)].m_Data.data()));
 }
 
 template<const StringLiteral configName>
