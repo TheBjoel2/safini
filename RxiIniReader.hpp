@@ -10,12 +10,12 @@ public:
 
     ~RxiIniReader();
 
-    std::optional<const std::string_view> get(const std::string_view name, const std::string_view section) noexcept;
+    std::optional<const std::string_view> get(const std::string_view name, const std::string_view section) const noexcept;
 
 private:
     ini_t* m_Config;
 
-    const char* read(const std::string_view name, const std::string_view section);
+    const char* read(const std::string_view name, const std::string_view section) const noexcept;
 };
 
 #include "RxiIniReader.cpp"

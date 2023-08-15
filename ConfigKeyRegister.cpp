@@ -10,27 +10,36 @@ namespace _register
 {
     using KeyView = std::string_view;
 
+    enum ParamType
+    {
+        Required,
+        Optional
+    };
+
     template<const StringLiteral configName>
     auto& _RegisteredKeysVector()
     {
         //prevents some "static init order fiasco" by defining the static variable below inside a function
         static std::vector<std::tuple<const KeyView,
                                       std::function<std::vector<char>(const std::string_view)>,
-                                      std::function<void(std::vector<char>&)>>> toReturn;
+                                      std::function<void(std::vector<char>&)>,
+                                      ParamType>> toReturn;
         return toReturn;
     }
 
     template<const StringLiteral configName,
              const StringLiteral registeredKey,
              auto serializeFunc,
-             auto destroyFunc>
+             auto destroyFunc,
+             ParamType paramType>
     static const auto _registerKey = std::invoke([]
     {
         _RegisteredKeysVector<configName>().emplace_back
         (
             registeredKey,
             serializeFunc,
-            destroyFunc
+            destroyFunc,
+            paramType
         );
         return 0;
     });

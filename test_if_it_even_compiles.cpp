@@ -24,7 +24,8 @@ int32_t main()
         std::cout << c.extract<const std::string, "lol.eh">() << std::endl;
         std::cout << c.extract<const std::string_view, "fail">() << std::endl;
         c.extract<Numbrr, "ok">();
-
+        std::cout << c.extractOr<uint32_t, "uwu">(420) << std::endl;
+        std::cout << c.tryExtract<float, "hehehe">().has_value() << std::endl;
     }
     catch(const std::runtime_error& err)
     {

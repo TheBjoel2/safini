@@ -28,23 +28,23 @@ public:
     template<typename ReturnType,
              const StringLiteral key>
     auto tryExtract() noexcept
-    -> std::optional<const ReturnType&>;
+    -> std::optional<std::reference_wrapper<const ReturnType>>;
 
 private:
     RxiIniReader m_IniReader;
 
-    using FullKey = std::string_view;
+    using Key = std::string_view;
     using Storage = std::vector<char>;
 
     struct SelfDestroyingStorage
     {
-        Storage m_Data;
         std::function<void(std::vector<char>&)> destroyFunc;
+        Storage m_Data;
 
         ~SelfDestroyingStorage();
     };
 
-    std::unordered_map<FullKey, SelfDestroyingStorage> m_KeysMap{};
+    std::unordered_map<Key, SelfDestroyingStorage> m_KeysMap{};
 };
 
 }
