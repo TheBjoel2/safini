@@ -1,3 +1,19 @@
+# safini
+C++20 header-only .ini configuration file reader library.
+Easy to set up, easy to use. Should work on all platforms.
+
+# Setup
+Go to your project's root and do:
+```
+git clone https://github.com/TheBjoel2/safini.git
+cd safini/ini
+git apply ../PortToCpp.diff
+```
+Include this
+```cpp
+#include "safini/Config.hpp"
+```
+
 # Usage
 Using safini is as simple as
 ```cpp
@@ -56,3 +72,11 @@ constexpr auto getSerizlizeFunc()
 If this local lambda throws, this means that conversion has been failed.
 
 Use wisely. Report bugs.
+
+# But why?
+So, I had a small project and I needed to quickly add some kind of a config to it.
+Tried 4 repos.
+The first one was ok, but overabstracted. And also json.
+The second one was also ok... But the documentation was in chinese, so I couldn't read it.
+The third one crashed with SIGSEGV when I tried to use it.
+The fourth one was implemented in C, so I wrote an abstraction over it for my needs. Hope someone will find this useful.
