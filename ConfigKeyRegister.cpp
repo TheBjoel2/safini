@@ -4,7 +4,7 @@
 namespace safini
 {
 
-//if you try accessing this, your computer may set on fire.
+//if you try accessing this namespace, your computer may set on fire.
 //UPD: lol it also set on fire my microwave
 namespace _register
 {
@@ -16,10 +16,15 @@ namespace _register
         Optional
     };
 
+    //this's a template function because for every function template,
+    //the unique static vector(see below) will be created.
+    //because imagine having 200 configs in your project, and they're all
+    //stored in one single vector. Lame
     template<const StringLiteral configName>
     auto& _RegisteredKeysVector()
     {
         //prevents some "static init order fiasco" by defining the static variable below inside a function
+        //that's what stores all the parameters btw
         static std::vector<std::tuple<const KeyView,
                                       std::function<std::vector<char>(const std::string_view)>,
                                       std::function<void(std::vector<char>&)>,
@@ -27,6 +32,9 @@ namespace _register
         return toReturn;
     }
 
+    //you declare this template in a function, it tries to instantiate _registerKey,
+    //instantiation is possible only by executing lambda below,
+    //lambda registers value. Simple.
     template<const StringLiteral configName,
              const StringLiteral registeredKey,
              auto serializeFunc,

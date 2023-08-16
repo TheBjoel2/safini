@@ -31,13 +31,22 @@ index ab5f11d..fa77f51 100644
    char *p = ini->data;
  
 diff --git a/src/ini.h b/src/ini.h
-index cd6af9f..7592224 100644
+index cd6af9f..fd26edd 100644
 --- a/src/ini.h
 +++ b/src/ini.h
-@@ -17,4 +17,6 @@ void        ini_free(ini_t *ini);
- const char* ini_get(ini_t *ini, const char *section, const char *key);
- int         ini_sget(ini_t *ini, const char *section, const char *key, const char *scanfmt, void *dst);
+@@ -12,9 +12,11 @@
  
-+#include "ini.c"
+ typedef struct ini_t ini_t;
+ 
+-ini_t*      ini_load(const char *filename);
+-void        ini_free(ini_t *ini);
+-const char* ini_get(ini_t *ini, const char *section, const char *key);
+-int         ini_sget(ini_t *ini, const char *section, const char *key, const char *scanfmt, void *dst);
++inline ini_t*      ini_load(const char *filename);
++inline void        ini_free(ini_t *ini);
++inline const char* ini_get(ini_t *ini, const char *section, const char *key);
++inline int         ini_sget(ini_t *ini, const char *section, const char *key, const char *scanfmt, void *dst);
 +
++#include "ini.c"
+ 
  #endif

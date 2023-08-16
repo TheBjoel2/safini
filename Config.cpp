@@ -53,6 +53,7 @@ template<const StringLiteral configName>
 template<typename ReturnType, const StringLiteral key>
 const ReturnType& safini::Config<configName>::extract() const noexcept
 {
+    //registers the key to be a required key
     //(void) supresses warning -Wunused-value
     (void)_register::_registerKey<configName,
                                   key,
@@ -60,6 +61,7 @@ const ReturnType& safini::Config<configName>::extract() const noexcept
                                   serialize::getDestroyFunc<ReturnType>(),
                                   _register::Required>;
 
+    //memory laundering because we store objects in vectors of chars
     return *std::launder(reinterpret_cast<const ReturnType*>(m_KeysMap.at(std::string_view(key)).m_Data.data()));
 }
 

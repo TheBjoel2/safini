@@ -94,9 +94,10 @@ private:
     using Key = std::string_view;
     using Storage = std::vector<char>;
 
+    //we do construct things using placement new. Who's going to destruct then?
     struct SelfDestroyingStorage
     {
-        std::function<void(std::vector<char>&)> destroyFunc;
+        std::function<void(Storage&)> destroyFunc;
         Storage m_Data;
 
         ~SelfDestroyingStorage();

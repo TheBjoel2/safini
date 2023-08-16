@@ -3,6 +3,8 @@ namespace safini
 namespace serialize
 {
 
+//converts passed string_view to the vector of chars that contains SerializedType
+//for integer types only
 template<typename SerializedType>
 constexpr auto getSerizlizeFunc() requires std::is_integral_v<SerializedType>
 {
@@ -14,6 +16,8 @@ constexpr auto getSerizlizeFunc() requires std::is_integral_v<SerializedType>
     };
 }
 
+//converts passed string_view to the vector of chars that contains SerializedType
+//general type conversion(tries SerializedType::SerializedType(str))
 template<typename SerializedType>
 constexpr auto getSerizlizeFunc() //seems that this one will always be chosen for substitution in the last
 {
