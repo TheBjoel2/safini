@@ -5,7 +5,7 @@ Easy to set up, easy to use. Should work on all platforms.
 # Setup
 Go to your project's root and do:
 ```
-git clone https://github.com/TheBjoel2/safini.git
+git clone --recursive https://github.com/TheBjoel2/safini.git
 cd safini/ini
 git apply ../PortToCpp.diff
 ```
