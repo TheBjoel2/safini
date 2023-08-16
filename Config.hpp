@@ -17,17 +17,17 @@ public:
 
     template<typename ReturnType,
              const StringLiteral key>
-    auto extract() noexcept
+    auto extract() const noexcept
     -> const ReturnType&;
 
     template<typename ReturnType,
              const StringLiteral key>
-    auto extractOr(const ReturnType& fallbackValue) noexcept
+    auto extractOr(const ReturnType& fallbackValue) const noexcept
     -> const ReturnType&;
 
     template<typename ReturnType,
              const StringLiteral key>
-    auto tryExtract() noexcept
+    auto tryExtract() const noexcept
     -> std::optional<std::reference_wrapper<const ReturnType>>;
 
 private:

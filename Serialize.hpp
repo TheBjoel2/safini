@@ -4,7 +4,7 @@ namespace serialize
 {
 
 template<typename SerializedType>
-constexpr auto getSerizlizeFunc() requires std::is_arithmetic_v<SerializedType>
+constexpr auto getSerizlizeFunc() requires std::is_integral_v<SerializedType>
 {
     return [](const std::string_view str)->std::vector<char>
     {

@@ -1,26 +1,19 @@
 #include "ConfigKeyRegister.cpp"
 #include "Serialize.hpp"
 
-namespace
-{
-    auto getParameter(const RxiIniReader& m_IniReader, const std::string_view key)
-    {
-        const std::size_t i = key.find('.');
-        const bool hasSection = i != key.npos;
-        //totally safe string operations
-        const std::string name(hasSection ? std::next(std::begin(key), i+1) : std::begin(key), std::end(key));
-        const std::string section(std::begin(key), hasSection ? std::next(std::begin(key), i) : std::begin(key));
-        return m_IniReader.get(name, section);
-    }
-}
-
 template<const StringLiteral configName>
 safini::Config<configName>::Config(const std::string_view filename):
     m_IniReader(filename)
 {
     for(const auto& [key, serializeFunc, destroyFunc, paramType] : _register::getRegisteredKeys<configName>())
     {
-        const auto param = getParameter(m_IniReader, key);
+        const std::size_t i = key.find('.');
+        const bool hasSection = i != key.npos;
+        //totally safe string operations
+        const std::string name(hasSection ? std::next(std::begin(key), i+1) : std::begin(key), std::end(key));
+        const std::string section(std::begin(key), hasSection ? std::next(std::begin(key), i) : std::begin(key));
+
+        const auto param = m_IniReader.get(name, section);
         if(!param.has_value() && paramType == _register::Required)
             throw std::runtime_error(std::string("No parameter \'")
                                          .append(key)
@@ -58,7 +51,7 @@ safini::Config<configName>::SelfDestroyingStorage::~SelfDestroyingStorage()
 
 template<const StringLiteral configName>
 template<typename ReturnType, const StringLiteral key>
-const ReturnType& safini::Config<configName>::extract() noexcept
+const ReturnType& safini::Config<configName>::extract() const noexcept
 {
     //(void) supresses warning -Wunused-value
     (void)_register::_registerKey<configName,
@@ -67,12 +60,12 @@ const ReturnType& safini::Config<configName>::extract() noexcept
                                   serialize::getDestroyFunc<ReturnType>(),
                                   _register::Required>;
 
-    return *std::launder(reinterpret_cast<ReturnType*>(m_KeysMap[std::string_view(key)].m_Data.data()));
+    return *std::launder(reinterpret_cast<const ReturnType*>(m_KeysMap.at(std::string_view(key)).m_Data.data()));
 }
 
 template<const StringLiteral configName>
 template<typename ReturnType, const StringLiteral key>
-const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallbackValue) noexcept
+const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallbackValue) const noexcept
 {
     (void)_register::_registerKey<configName,
                                   key,
@@ -83,12 +76,12 @@ const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallba
     const auto param = m_KeysMap.find(std::string_view(key));
     if(param == m_KeysMap.cend())
         return fallbackValue;
-    return *std::launder(reinterpret_cast<ReturnType*>(param->second.m_Data.data()));
+    return *std::launder(reinterpret_cast<const ReturnType*>(param->second.m_Data.data()));
 }
 
 template<const StringLiteral configName>
 template<typename ReturnType, const StringLiteral key>
-std::optional<std::reference_wrapper<const ReturnType>> safini::Config<configName>::tryExtract() noexcept
+std::optional<std::reference_wrapper<const ReturnType>> safini::Config<configName>::tryExtract() const noexcept
 {
     (void)_register::_registerKey<configName,
                                   key,
@@ -99,5 +92,5 @@ std::optional<std::reference_wrapper<const ReturnType>> safini::Config<configNam
     const auto param = m_KeysMap.find(std::string_view(key));
     if(param == m_KeysMap.cend())
         return {};
-    return *std::launder(reinterpret_cast<ReturnType*>(param->second.m_Data.data()));
+    return *std::launder(reinterpret_cast<const ReturnType*>(param->second.m_Data.data()));
 }
