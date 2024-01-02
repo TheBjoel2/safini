@@ -5,8 +5,6 @@
 #include <functional>
 #include <cstdint>
 
-#include <iostream> //DELETE DELETE DELETE DELETE DELETE DELETE DELETE DELETE
-
 class AnyTypeStorage
 {
 public:
