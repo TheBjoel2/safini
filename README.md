@@ -60,12 +60,11 @@ template<typename SerializedType>
 constexpr auto getSerizlizeFunc()
     requires std::same_as<SerializedType, SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal>
 {
-    return [](const std::string_view str)->std::vector<char>
+    return [](const std::string_view str)->AnyTypeStorage
     {
-        std::vector<char> toReturn(sizeof(SerializedType));
         //now construct your SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal
-        //on top of toReturn.data()
-        return toReturn;
+        //and put it in AnyTypeStorage
+        //you can find examples in Serialize.hpp
     };
 }
 ```
