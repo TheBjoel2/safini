@@ -7,6 +7,13 @@ safini::Config<configName>::Config(const std::string_view filename):
 {
     for(const auto& [key, serializeFunc, paramType] : _register::getRegisteredKeys<configName>())
     {
+        //if map already contains that key, it's an error
+        //because treating the same storage as different types is ub
+        if(m_KeysMap.find(key) != m_KeysMap.end())
+            throw std::runtime_error(std::string("Multiple keys \'")
+                                         .append(key)
+                                         .append("\' with different types are not allowed"));
+
         const std::size_t i = key.find('.');
         const bool hasSection = i != key.npos;
         //totally safe string operations
