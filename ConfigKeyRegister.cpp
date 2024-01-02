@@ -1,3 +1,4 @@
+#include "AnyTypeStorage.hpp"
 #include <vector>
 #include <functional>
 
@@ -26,8 +27,7 @@ namespace _register
         //prevents some "static init order fiasco" by defining the static variable below inside a function
         //that's what stores all the parameters btw
         static std::vector<std::tuple<const KeyView,
-                                      std::function<std::vector<char>(const std::string_view)>,
-                                      std::function<void(std::vector<char>&)>,
+                                      std::function<AnyTypeStorage(const std::string_view)>,
                                       ParamType>> toReturn;
         return toReturn;
     }
@@ -38,7 +38,6 @@ namespace _register
     template<const StringLiteral configName,
              const StringLiteral registeredKey,
              auto serializeFunc,
-             auto destroyFunc,
              ParamType paramType>
     static const auto _registerKey = std::invoke([]
     {
@@ -46,7 +45,6 @@ namespace _register
         (
             registeredKey,
             serializeFunc,
-            destroyFunc,
             paramType
         );
         return 0;

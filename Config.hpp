@@ -1,5 +1,6 @@
 #include "StringLiteral.hpp"
 #include "RxiIniReader.hpp"
+#include "AnyTypeStorage.hpp"
 #include <string_view>
 #include <optional>
 #include <unordered_map>
@@ -92,18 +93,8 @@ private:
     RxiIniReader m_IniReader;
 
     using Key = std::string_view;
-    using Storage = std::vector<char>;
-
-    //we do construct things using placement new. Who's going to destruct then?
-    struct SelfDestroyingStorage
-    {
-        std::function<void(Storage&)> destroyFunc;
-        Storage m_Data;
-
-        ~SelfDestroyingStorage();
-    };
-
-    std::unordered_map<Key, SelfDestroyingStorage> m_KeysMap{};
+    using Storage = AnyTypeStorage;
+    std::unordered_map<Key, Storage> m_KeysMap{};
 };
 
 }
