@@ -22,7 +22,7 @@ namespace _register
     //because imagine having 200 configs in your project, and they're all
     //stored in one single vector. Lame
     template<const StringLiteral configName>
-    auto& _RegisteredKeysVector()
+    inline auto& _RegisteredKeysVector()
     {
         //prevents some "static init order fiasco" by defining the static variable below inside a function
         //that's what stores all the parameters btw
@@ -39,7 +39,7 @@ namespace _register
              const StringLiteral registeredKey,
              auto serializeFunc,
              ParamType paramType>
-    static const auto _registerKey = std::invoke([]
+    inline const auto _registerKey = std::invoke([]
     {
         _RegisteredKeysVector<configName>().emplace_back
         (
