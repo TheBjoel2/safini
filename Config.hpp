@@ -1,6 +1,8 @@
 #include "StringLiteral.hpp"
 #include "RxiIniReader.hpp"
 #include "AnyTypeStorage.hpp"
+#include "TypeHash.cpp"
+#include "PairHash.cpp"
 #include <string_view>
 #include <optional>
 #include <unordered_map>
@@ -92,9 +94,9 @@ public:
 private:
     RxiIniReader m_IniReader;
 
-    using Key = std::string_view;
+    using Key = std::pair<std::string_view, TypeHash>;
     using Storage = AnyTypeStorage;
-    std::unordered_map<Key, Storage> m_KeysMap{};
+    std::unordered_map<Key, Storage, PairHash> m_KeysMap{};
 };
 
 }

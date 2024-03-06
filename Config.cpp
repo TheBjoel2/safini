@@ -5,15 +5,8 @@ template<const StringLiteral configName>
 safini::Config<configName>::Config(const std::string_view filename):
     m_IniReader(filename)
 {
-    for(const auto& [key, serializeFunc, paramType] : _register::getRegisteredKeys<configName>())
+    for(const auto& [key, typeHash, serializeFunc, paramType] : _register::getRegisteredKeys<configName>())
     {
-        //if map already contains that key, it's an error
-        //because treating the same storage as different types is ub
-        if(m_KeysMap.find(key) != m_KeysMap.end())
-            throw std::runtime_error(std::string("Multiple keys \'")
-                                         .append(key)
-                                         .append("\' with different types are not allowed"));
-
         const std::size_t i = key.find('.');
         const bool hasSection = i != key.npos;
         //totally safe string operations
@@ -31,7 +24,7 @@ safini::Config<configName>::Config(const std::string_view filename):
             continue;
         try
         {
-            m_KeysMap.emplace(key, serializeFunc(param.value()));
+            m_KeysMap.emplace(std::make_pair(key, typeHash), serializeFunc(param.value()));
         }
         catch(...)
         {
@@ -54,10 +47,11 @@ const ReturnType& safini::Config<configName>::extract() const noexcept
     //(void) supresses warning -Wunused-value
     (void)_register::_registerKey<configName,
                                   key,
+                                  getHashFromType<ReturnType>(),
                                   serialize::getSerizlizeFunc<ReturnType>(),
                                   _register::Required>;
 
-    return m_KeysMap.at(std::string_view(key)).get<ReturnType>();
+    return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<ReturnType>())).template get<ReturnType>();
 }
 
 template<const StringLiteral configName>
@@ -66,13 +60,14 @@ const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallba
 {
     (void)_register::_registerKey<configName,
                                   key,
+                                  getHashFromType<ReturnType>(),
                                   serialize::getSerizlizeFunc<ReturnType>(),
                                   _register::Optional>;
 
-    const auto param = m_KeysMap.find(std::string_view(key));
+    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
     if(param == m_KeysMap.cend())
         return fallbackValue;
-    return param->second.get<ReturnType>();
+    return param->second.template get<ReturnType>();
 }
 
 template<const StringLiteral configName>
@@ -81,11 +76,12 @@ std::optional<std::reference_wrapper<const ReturnType>> safini::Config<configNam
 {
     (void)_register::_registerKey<configName,
                                   key,
+                                  getHashFromType<ReturnType>(),
                                   serialize::getSerizlizeFunc<ReturnType>(),
                                   _register::Optional>;
 
-    const auto param = m_KeysMap.find(std::string_view(key));
+    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
     if(param == m_KeysMap.cend())
         return {};
-    return param->second.get<ReturnType>();
+    return param->second.template get<ReturnType>();
 }

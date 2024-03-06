@@ -1,4 +1,5 @@
 #include "AnyTypeStorage.hpp"
+#include "TypeHash.cpp"
 #include <vector>
 #include <functional>
 
@@ -27,6 +28,7 @@ namespace _register
         //prevents some "static init order fiasco" by defining the static variable below inside a function
         //that's what stores all the parameters btw
         static std::vector<std::tuple<const KeyView,
+                                      TypeHash,
                                       std::function<AnyTypeStorage(const std::string_view)>,
                                       ParamType>> toReturn;
         return toReturn;
@@ -37,6 +39,7 @@ namespace _register
     //lambda registers value. Simple.
     template<const StringLiteral configName,
              const StringLiteral registeredKey,
+             TypeHash registeredTypeHash,
              auto serializeFunc,
              ParamType paramType>
     inline const auto _registerKey = std::invoke([]
@@ -44,6 +47,7 @@ namespace _register
         _RegisteredKeysVector<configName>().emplace_back
         (
             registeredKey,
+            registeredTypeHash,
             serializeFunc,
             paramType
         );
