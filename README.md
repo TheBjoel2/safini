@@ -48,12 +48,8 @@ but for example conversion to ``int`` requires the value to be an actual number.
 One day you may also need to convert it to ``SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal``,
 which would require additional conversion logic.
 You could define such additional logic either by creating a constructor of ``SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal`` that takes ``const std::string_view`` as an argument,
-or define the serialization function somewhere in your code as follows:
+or define the serialization function in ``Serialize.hpp as`` follows:
 ```cpp
-namespace safini
-{
-namespace serialize
-{
 template<typename SerializedType>
 constexpr auto getSerizlizeFunc()
     requires std::same_as<SerializedType, SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal>
