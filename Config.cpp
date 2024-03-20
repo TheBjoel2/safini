@@ -50,7 +50,7 @@ const ReturnType& safini::Config<configName>::extract() const noexcept
                                   serializeFunc,
                                   _register::Required>;
 
-    return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<ReturnType>())).template get<ReturnType>();
+    return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<ReturnType>())).template get<const ReturnType>();
 }
 
 template<const StringLiteral configName>
@@ -66,7 +66,7 @@ const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallba
     const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
     if(param == m_KeysMap.cend())
         return fallbackValue;
-    return param->second.template get<ReturnType>();
+    return param->second.template get<const ReturnType>();
 }
 
 template<const StringLiteral configName>
@@ -82,5 +82,5 @@ std::optional<std::reference_wrapper<const ReturnType>> safini::Config<configNam
     const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
     if(param == m_KeysMap.cend())
         return {};
-    return param->second.template get<ReturnType>();
+    return param->second.template get<const ReturnType>();
 }
