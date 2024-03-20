@@ -17,7 +17,7 @@ constexpr auto getSerizlizeFunc() requires std::is_integral_v<SerializedType>
 
 //general type conversion(tries SerializedType::SerializedType(str))
 template<typename SerializedType>
-constexpr auto getSerizlizeFunc() //seems that this one will always be chosen for substitution in the last
+constexpr auto getSerizlizeFunc() requires std::convertible_to<const std::string_view, SerializedType>
 {
     return [](const std::string_view str)->AnyTypeStorage
     {

@@ -1,5 +1,4 @@
 #include "ConfigKeyRegister.cpp"
-#include "Serialize.hpp"
 
 template<const StringLiteral configName>
 safini::Config<configName>::Config(const std::string_view filename):
@@ -40,7 +39,7 @@ safini::Config<configName>::Config(const std::string_view filename):
 }
 
 template<const StringLiteral configName>
-template<typename ReturnType, const StringLiteral key>
+template<typename ReturnType, const StringLiteral key, auto serializeFunc>
 const ReturnType& safini::Config<configName>::extract() const noexcept
 {
     //registers the key to be a required key
@@ -48,20 +47,20 @@ const ReturnType& safini::Config<configName>::extract() const noexcept
     (void)_register::_registerKey<configName,
                                   key,
                                   getHashFromType<ReturnType>(),
-                                  serialize::getSerizlizeFunc<ReturnType>(),
+                                  serializeFunc,
                                   _register::Required>;
 
     return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<ReturnType>())).template get<ReturnType>();
 }
 
 template<const StringLiteral configName>
-template<typename ReturnType, const StringLiteral key>
+template<typename ReturnType, const StringLiteral key, auto serializeFunc>
 const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallbackValue) const noexcept
 {
     (void)_register::_registerKey<configName,
                                   key,
                                   getHashFromType<ReturnType>(),
-                                  serialize::getSerizlizeFunc<ReturnType>(),
+                                  serializeFunc,
                                   _register::Optional>;
 
     const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
@@ -71,13 +70,13 @@ const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallba
 }
 
 template<const StringLiteral configName>
-template<typename ReturnType, const StringLiteral key>
+template<typename ReturnType, const StringLiteral key, auto serializeFunc>
 std::optional<std::reference_wrapper<const ReturnType>> safini::Config<configName>::tryExtract() const noexcept
 {
     (void)_register::_registerKey<configName,
                                   key,
                                   getHashFromType<ReturnType>(),
-                                  serialize::getSerizlizeFunc<ReturnType>(),
+                                  serializeFunc,
                                   _register::Optional>;
 
     const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));

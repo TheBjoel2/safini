@@ -3,6 +3,7 @@
 #include "AnyTypeStorage.hpp"
 #include "TypeHash.cpp"
 #include "PairHash.cpp"
+#include "Serialize.hpp"
 #include <string_view>
 #include <optional>
 #include <unordered_map>
@@ -47,11 +48,13 @@ public:
     ///
     /// \param ReturnType Type of the argument(int, string, etc)
     /// \param key String literal of the config key("foo.bar")
+    /// \param serializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
     ///
     /// \return const reference to object stored in Config instance
     /////////////////////////////////////
     template<typename ReturnType,
-             const StringLiteral key>
+             const StringLiteral key,
+             auto serializeFunc = serialize::getSerizlizeFunc<ReturnType>()>
     auto extract() const noexcept
     -> const ReturnType&;
 
@@ -65,12 +68,14 @@ public:
     ///
     /// \param ReturnType Type of the argument(int, string, etc)
     /// \param key String literal of the config key("foo.bar")
+    /// \param serializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
     /// \param fallbackValue Const reference to fallback value
     ///
     /// \return either object present in a Config, or fallbackValue
     /////////////////////////////////////
     template<typename ReturnType,
-             const StringLiteral key>
+             const StringLiteral key,
+             auto serializeFunc = serialize::getSerizlizeFunc<ReturnType>()>
     auto extractOr(const ReturnType& fallbackValue) const noexcept
     -> const ReturnType&;
 
@@ -83,11 +88,13 @@ public:
     ///
     /// \param ReturnType Type of the config value(int, string, etc)
     /// \param key String literal of the config key("foo.bar")
+    /// \param serializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
     ///
     /// \return std::optional of an object
     /////////////////////////////////////
     template<typename ReturnType,
-             const StringLiteral key>
+             const StringLiteral key,
+             auto serializeFunc = serialize::getSerizlizeFunc<ReturnType>()>
     auto tryExtract() const noexcept
     -> std::optional<std::reference_wrapper<const ReturnType>>;
 

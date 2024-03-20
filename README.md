@@ -48,21 +48,18 @@ but for example conversion to ``int`` requires the value to be an actual number.
 One day you may also need to convert it to ``SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal``,
 which would require additional conversion logic.
 You could define such additional logic either by creating a constructor of ``SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal`` that takes ``const std::string_view`` as an argument,
-or define the serialization function in ``Serialize.hpp as`` follows:
+or by calling ``extract``, ``extractOr`` or ``tryExtract`` as follows:
 ```cpp
-template<typename SerializedType>
-constexpr auto getSerizlizeFunc()
-    requires std::same_as<SerializedType, SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal>
+cfg.extract<SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal,
+            "num",
+            [](const std::string_view str)->AnyTypeStorage
 {
-    return [](const std::string_view str)->AnyTypeStorage
-    {
-        //now construct your SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal
-        //and put it in AnyTypeStorage
-        //you can find examples in Serialize.hpp
-    };
-}
+    //here you construct and return AnyTypeStorage containing your type
+    //you can find examples in Serialize.hpp
+    //returning AnyTypeStorage containing not the requested type is UB
+}>();
 ```
-If this local lambda throws, this means that conversion has been failed.
+If this lambda throws, this means that conversion has been failed.
 
 Use wisely. Report bugs.
 
