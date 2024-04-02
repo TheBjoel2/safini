@@ -28,9 +28,9 @@ safini::Config<configName>::Config(const std::string_view filename):
         catch(...)
         {
             if(paramType == _register::Required)
-                throw std::runtime_error(std::string("Unable to convert ")
+                throw std::runtime_error(std::string("Unable to convert \'")
                                              .append(key)
-                                             .append("=\'")
+                                             .append("\'=\'")
                                              .append(param.value())
                                              .append("\' to whatever type it belongs to")
                                              .append(" from config file \'")
