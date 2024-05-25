@@ -47,7 +47,7 @@ The value presented in a config file could be converted to string with no proble
 but for example conversion to ``int`` requires the value to be an actual number.
 One day you may also need to convert it to ``SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal``,
 which would require additional conversion logic.
-You could define such additional logic either by creating a constructor of ``SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal`` that takes ``const std::string_view`` as an argument,
+You could define such additional logic either by creating a constructor of ``SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal`` that takes ``const std::string_view`` as a parameter,
 or by calling ``extract``, ``extractOr`` or ``tryExtract`` as follows:
 ```cpp
 cfg.extract<SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal,
