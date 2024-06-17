@@ -1,10 +1,10 @@
 #include "ConfigKeyRegister.cpp"
 
-template<const StringLiteral configName>
-safini::Config<configName>::Config(const std::string_view filename):
+template<typename ConfigName>
+safini::Config<ConfigName>::Config(const std::string_view filename):
     m_IniReader(filename)
 {
-    for(const auto& [key, typeHash, serializeFunc, paramType] : _register::getRegisteredKeys<configName>())
+    for(const auto& [key, typeHash, serializeFunc, paramType] : _register::getRegisteredKeys<ConfigName>())
     {
         const std::size_t i = key.find('.');
         const bool hasSection = i != key.npos;
@@ -40,13 +40,13 @@ safini::Config<configName>::Config(const std::string_view filename):
     }
 }
 
-template<const StringLiteral configName>
+template<typename ConfigName>
 template<typename ReturnType, const StringLiteral key, auto serializeFunc>
-const ReturnType& safini::Config<configName>::extract() const noexcept
+const ReturnType& safini::Config<ConfigName>::extract() const noexcept
 {
     //registers the key to be a required key
     //(void) supresses warning -Wunused-value
-    (void)_register::_registerKey<configName,
+    (void)_register::_registerKey<ConfigName,
                                   key,
                                   getHashFromType<ReturnType>(),
                                   serializeFunc,
@@ -55,11 +55,11 @@ const ReturnType& safini::Config<configName>::extract() const noexcept
     return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<ReturnType>())).template get<const ReturnType>();
 }
 
-template<const StringLiteral configName>
+template<typename ConfigName>
 template<typename ReturnType, const StringLiteral key, auto serializeFunc>
-const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallbackValue) const noexcept
+const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallbackValue) const noexcept
 {
-    (void)_register::_registerKey<configName,
+    (void)_register::_registerKey<ConfigName,
                                   key,
                                   getHashFromType<ReturnType>(),
                                   serializeFunc,
@@ -71,11 +71,11 @@ const ReturnType& safini::Config<configName>::extractOr(const ReturnType& fallba
     return param->second.template get<const ReturnType>();
 }
 
-template<const StringLiteral configName>
+template<typename ConfigName>
 template<typename ReturnType, const StringLiteral key, auto serializeFunc>
-std::optional<std::reference_wrapper<const ReturnType>> safini::Config<configName>::tryExtract() const noexcept
+std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigName>::tryExtract() const noexcept
 {
-    (void)_register::_registerKey<configName,
+    (void)_register::_registerKey<ConfigName,
                                   key,
                                   getHashFromType<ReturnType>(),
                                   serializeFunc,

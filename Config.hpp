@@ -20,7 +20,7 @@ namespace safini
 /// throwing exceptions if the requested parameter
 /// is absolutely required to continue code execution
 /////////////////////////////////////
-template<const StringLiteral configName>
+template<typename ConfigName>
 class Config
 {
 public:
@@ -31,7 +31,7 @@ public:
     /// extracts values and passes them to object constructors.
     /// Stores the constructed objects inside of itself
     ///
-    /// \param configName UNIQUE name of the config. Not necessarily a config filename
+    /// \param ConfigName UNIQUE name of the config. Not necessarily a config filename
     /// \param filename Runtime defined config filename
     ///
     /// \see extract extractOr tryExtract

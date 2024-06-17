@@ -16,8 +16,8 @@ Include this
 Using safini is as simple as
 ```cpp
 //what.ini - filename in a filesystem
-//config1 - just a config identifier. Set this to unique value for every Config
-safini::Config<"config1"> cfg("what.ini");
+//config1 - just a config identifier. Set this to unique value for every safini::Config instance
+safini::Config<class config1> cfg("what.ini");
 
 cfg.extract   <int,                    "num">();
 cfg.extractOr <const std::string,      "foo.bar">("Nyah");

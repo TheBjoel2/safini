@@ -22,7 +22,7 @@ namespace _register
     //the unique static vector(see below) will be created.
     //because imagine having 200 configs in your project, and they're all
     //stored in one single vector. Lame
-    template<const StringLiteral configName>
+    template<typename ConfigName>
     inline auto& _RegisteredKeysVector()
     {
         //prevents some "static init order fiasco" by defining the static variable below inside a function
@@ -37,14 +37,14 @@ namespace _register
     //you declare this template in a function, it tries to instantiate _registerKey,
     //instantiation is possible only by executing lambda below,
     //lambda registers value. Simple.
-    template<const StringLiteral configName,
+    template<typename ConfigName,
              const StringLiteral registeredKey,
              TypeHash registeredTypeHash,
              auto serializeFunc,
              ParamType paramType>
     inline const auto _registerKey = std::invoke([]
     {
-        _RegisteredKeysVector<configName>().emplace_back
+        _RegisteredKeysVector<ConfigName>().emplace_back
         (
             registeredKey,
             registeredTypeHash,
@@ -55,10 +55,10 @@ namespace _register
     });
 
     //you can call that
-    template<const StringLiteral configName>
+    template<typename ConfigName>
     const auto& getRegisteredKeys() noexcept
     {
-        return _register::_RegisteredKeysVector<configName>();
+        return _register::_RegisteredKeysVector<ConfigName>();
     }
 }
 
