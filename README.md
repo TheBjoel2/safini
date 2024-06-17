@@ -31,7 +31,7 @@ If you don't understand what I just said, just look at the backtrace of such cra
 ...
 #6  std::terminate () at /usr/src/debug/gcc/gcc/libstdc++-v3/libsupc++/eh_terminate.cc:58
 #7  __cxxabiv1::__cxa_throw (obj=<optimized out>, tinfo=0x55555556ad00 <typeinfo for std::runtime_error@GLIBCXX_3.4>, dest=0x7ffff7cc8320 <std::runtime_error::~runtime_error()>)
-#8  safini::Config::Config(...) at Config.cpp:18 <------ Look here
+#8  safini::Config::Config(...) at Config.cpp:17 <------ Look here
 ...
 ```
 This happens because when you call ``extract()``, ``extractOr()`` or ``tryExtract()``,
