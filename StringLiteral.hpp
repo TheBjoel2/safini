@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <string_view>
 
+namespace safini
+{
+
 inline void expectedNullTerminatedArray(){}
 
 //yeah it's c++20, yet no other way to pass "" as template parameter
@@ -28,3 +31,5 @@ struct StringLiteral
     char value[_size];
     std::size_t size;
 };
+
+}

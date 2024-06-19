@@ -5,6 +5,9 @@
 #include <functional>
 #include <cstdint>
 
+namespace safini
+{
+
 class AnyTypeStorage
 {
 public:
@@ -68,5 +71,7 @@ private:
     void* typeBegin = nullptr;
     std::function<void(void*)> storageDestroyFunc{};
 };
+
+}
 
 #endif // ANY_TYPE_STORAGE

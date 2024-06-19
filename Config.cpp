@@ -46,7 +46,7 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const StringLiteral key, auto serializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
 const ReturnType& safini::Config<ConfigName>::extract() const noexcept
 {
     //registers the key to be a required key
@@ -61,7 +61,7 @@ const ReturnType& safini::Config<ConfigName>::extract() const noexcept
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const StringLiteral key, auto serializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
 const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallbackValue) const noexcept
 {
     (void)_register::_registerKey<ConfigName,
@@ -77,7 +77,7 @@ const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallba
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const StringLiteral key, auto serializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
 std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigName>::tryExtract() const noexcept
 {
     (void)_register::_registerKey<ConfigName,

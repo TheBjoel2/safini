@@ -1,3 +1,6 @@
+namespace safini
+{
+
 struct PairHash
 {
     template<class T1, class T2>
@@ -9,3 +12,5 @@ struct PairHash
         return h1 ^ h2;
     }
 };
+
+}

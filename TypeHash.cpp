@@ -3,6 +3,9 @@
 
 #include <cstdint>
 
+namespace safini
+{
+
 using TypeHash = const int32_t*;
 
 template<typename>
@@ -16,6 +19,8 @@ template<typename T>
 constexpr TypeHash getHashFromType()
 {
     return TypeHashStruct<T>::value;
+}
+
 }
 
 #endif // TYPE_HASH_CPP
