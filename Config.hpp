@@ -1,8 +1,8 @@
 #include "StringLiteral.hpp"
 #include "RxiIniReader.hpp"
 #include "AnyTypeStorage.hpp"
-#include "TypeHash.cpp"
-#include "PairHash.cpp"
+#include "TypeHash.hpp"
+#include "PairHash.hpp"
 #include "Serialize.hpp"
 #include <string_view>
 #include <optional>

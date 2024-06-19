@@ -1,5 +1,5 @@
 #include "AnyTypeStorage.hpp"
-#include "TypeHash.cpp"
+#include "TypeHash.hpp"
 #include <vector>
 #include <functional>
 

@@ -1,5 +1,5 @@
-#ifndef TYPE_HASH_CPP
-#define TYPE_HASH_CPP
+#ifndef TYPE_HASH
+#define TYPE_HASH
 
 #include <cstdint>
 
@@ -23,4 +23,4 @@ constexpr TypeHash getHashFromType()
 
 }
 
-#endif // TYPE_HASH_CPP
+#endif // TYPE_HASH
