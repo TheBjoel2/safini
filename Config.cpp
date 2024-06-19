@@ -1,4 +1,5 @@
 #include "ConfigKeyRegister.cpp"
+#include "MultipleException.hpp"
 
 template<typename ConfigName>
 safini::Config<ConfigName>::Config(const std::string_view filename):
@@ -25,17 +26,21 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
         {
             m_KeysMap.emplace(std::make_pair(key, typeHash), serializeFunc(param.value()));
         }
-        catch(...)
+        catch(const std::exception& exc)
         {
             if(paramType == _register::Required)
-                throw std::runtime_error(std::string("Unable to convert \'")
-                                             .append(key)
-                                             .append("\'=\'")
-                                             .append(param.value())
-                                             .append("\' to whatever type it belongs to")
-                                             .append(" from config file \'")
-                                             .append(filename)
-                                             .append(1, '\''));
+            {
+                MultipleException multipleException(exc.what());
+                multipleException.addException(std::string("Unable to convert \'")
+                                                   .append(key)
+                                                   .append("\'=\'")
+                                                   .append(param.value())
+                                                   .append("\' to whatever type it belongs to")
+                                                   .append(" from config file \'")
+                                                   .append(filename)
+                                                   .append(1, '\''));
+                throw multipleException;
+            }
         }
     }
 }

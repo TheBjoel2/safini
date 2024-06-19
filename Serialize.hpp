@@ -17,7 +17,7 @@ constexpr auto getSerizlizeFunc() requires Character<SerializedType>
 {
     return [](const std::string_view str)->AnyTypeStorage
     {
-        if(str.size() != 1) throw std::runtime_error("convertible string is not a character");
+        if(str.size() != 1) throw std::invalid_argument("convertible string is not a character");
 
         AnyTypeStorage toReturn(std::in_place_type_t<SerializedType>{}, str[0]);
         return toReturn;
