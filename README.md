@@ -53,12 +53,12 @@ Now to the exceptions.
 - ``extract()``, ``extractOr()`` and ``tryExtract()`` are ``noexcept``, meaning that
 they do not throw any exceptions, and won't ever throw them in the future (you can rely on that).
 - ``Config::Config()`` does throw several exceptions, and **all of them could be caught by ``std::exception`` reference**
-  - ``std::runtime_error`` if ``RxiIniReader`` fails to load the config file to memory (e.g. file does not exists)
+  - ``std::runtime_error`` if ``RxiIniReader`` fails to load the config file into memory (e.g. file does not exist)
   - whatever is thrown by ``std::string`` constructor and its ``append`` method (e.g. ``std::bad_alloc``)
   - ``std::runtime_error`` if the key you parse with ``extract()`` method is not present in the config file
   - ``MultipleException`` if the emplacement of the parameter into ``std::unordered_map`` fails.
     ``MultipleException`` will contain its own error message as well as the error message of the exception
-    that caused the emplacement failure. It can contain exception message of the exception thrown by
+    that caused the emplacement failure. It could contain exception message of the exception thrown by
     - ``std::unordered_map::emplace()``, whatever it throws (e.g. ``std::bad_alloc``)
     - ``safini::serialize`` functions, whatever they throw (see ``Serialize.hpp``)
     - your own serialization function/lambda (see below), whatever it throws
@@ -92,7 +92,7 @@ cfg.extract<SomeWeirdComplexTypeAbstractFactorySingletonThreadLocal,
 If this lambda throws, this means that conversion has been failed. The corresponding exception (see above)
 will be thrown by ``Config::Config()`` in that case;
 
-Use wisely. Report bugs.
+Use wisely. Report bugs. Feature requests are welcome.
 
 # But why?
 So, I had a small project and I needed to quickly add some kind of a config to it.
