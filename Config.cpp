@@ -49,6 +49,13 @@ template<typename ConfigName>
 template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
 const ReturnType& safini::Config<ConfigName>::extract() const noexcept
 {
+    //the code may break if you request volatile qualified thing
+    //probably breaks at AnyTypeStorage.hpp:22
+    //when you access volatile object through non volatile pointer, it's UB
+    //see https://en.cppreference.com/w/cpp/language/cv
+    //also see https://stackoverflow.com/questions/39583491/c-volatile-placement-new
+    static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
+
     //registers the key to be a required key
     //(void) supresses warning -Wunused-value
     (void)_register::_registerKey<ConfigName,
@@ -64,6 +71,8 @@ template<typename ConfigName>
 template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
 const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallbackValue) const noexcept
 {
+    static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
+
     (void)_register::_registerKey<ConfigName,
                                   key,
                                   getHashFromType<ReturnType>(),
@@ -80,6 +89,8 @@ template<typename ConfigName>
 template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
 std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigName>::tryExtract() const noexcept
 {
+    static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
+
     (void)_register::_registerKey<ConfigName,
                                   key,
                                   getHashFromType<ReturnType>(),
