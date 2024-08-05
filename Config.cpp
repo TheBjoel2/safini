@@ -5,8 +5,17 @@ template<typename ConfigName>
 safini::Config<ConfigName>::Config(const std::string_view filename):
     m_IniReader(filename)
 {
-    for(const auto& [key, typeHash, serializeFunc, paramType] : _register::getRegisteredKeys<ConfigName>())
+    for(auto& entry : _register::_RegisteredKeysStorage<ConfigName>())
     {
+        //oh, I would love to use structured binding instead of that crap,
+        //however you can't mix auto& and const auto& together
+        const auto& key           = std::get<0>(entry);
+        const auto& serializeFunc = std::get<1>(entry);
+        const auto& paramType     = std::get<2>(entry);
+        std::optional<AnyTypeStorage>& optionalStorage     = std::get<3>(entry);
+
+        //splitting your "section.key" into "section" and "section keys"
+        //see https://en.wikipedia.org/wiki/INI_file
         const std::size_t i = key.find('.');
         const bool hasSection = i != key.npos;
         //totally safe string operations
@@ -24,7 +33,7 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
             continue;
         try
         {
-            m_KeysMap.emplace(std::make_pair(key, typeHash), serializeFunc(param.value()));
+            optionalStorage.emplace(serializeFunc(param.value()));
         }
         catch(const std::exception& exc)
         {
@@ -46,6 +55,16 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
 }
 
 template<typename ConfigName>
+safini::Config<ConfigName>::~Config()
+{
+    //need to clear that storage like so because I'm guaranteeing to destruct
+    //objects stored in storage in the reverse order of them constructed
+    auto& keysStorage = _register::_RegisteredKeysStorage<ConfigName>();
+    while(!keysStorage.empty())
+        keysStorage.pop_back();
+}
+
+template<typename ConfigName>
 template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
 const ReturnType& safini::Config<ConfigName>::extract() const noexcept
 {
@@ -57,14 +76,12 @@ const ReturnType& safini::Config<ConfigName>::extract() const noexcept
     static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
 
     //registers the key to be a required key
-    //(void) supresses warning -Wunused-value
-    (void)_register::_registerKey<ConfigName,
-                                  key,
-                                  getHashFromType<ReturnType>(),
-                                  serializeFunc,
-                                  _register::Required>;
-
-    return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<ReturnType>())).template get<const ReturnType>();
+    const auto& optionalRef = _register::_registerKey<ConfigName,
+                                                      key,
+                                                      serializeFunc,
+                                                      _register::Required>;
+    //optional is guaranteed to have a value
+    return optionalRef.value().template get<const ReturnType>();
 }
 
 template<typename ConfigName>
@@ -73,16 +90,13 @@ const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallba
 {
     static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
 
-    (void)_register::_registerKey<ConfigName,
-                                  key,
-                                  getHashFromType<ReturnType>(),
-                                  serializeFunc,
-                                  _register::Optional>;
-
-    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
-    if(param == m_KeysMap.cend())
+    const auto& optionalRef = _register::_registerKey<ConfigName,
+                                                      key,
+                                                      serializeFunc,
+                                                      _register::Required>;
+    if(!optionalRef.has_value())
         return fallbackValue;
-    return param->second.template get<const ReturnType>();
+    return optionalRef.value().template get<const ReturnType>();
 }
 
 template<typename ConfigName>
@@ -91,14 +105,11 @@ std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigNam
 {
     static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
 
-    (void)_register::_registerKey<ConfigName,
-                                  key,
-                                  getHashFromType<ReturnType>(),
-                                  serializeFunc,
-                                  _register::Optional>;
-
-    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
-    if(param == m_KeysMap.cend())
+    const auto& optionalRef = _register::_registerKey<ConfigName,
+                                                      key,
+                                                      serializeFunc,
+                                                      _register::Required>;
+    if(!optionalRef.has_value())
         return {};
-    return param->second.template get<const ReturnType>();
+    return optionalRef.value().template get<const ReturnType>();
 }

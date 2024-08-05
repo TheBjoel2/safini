@@ -1,6 +1,5 @@
 #include "AnyTypeStorage.hpp"
-#include "TypeHash.hpp"
-#include <vector>
+#include <list>
 #include <functional>
 
 namespace safini
@@ -19,18 +18,19 @@ namespace _register
     };
 
     //this's a template function because for every function template,
-    //the unique static vector(see below) will be created.
+    //the unique static storage(see below) will be created.
     //because imagine having 200 configs in your project, and they're all
-    //stored in one single vector. Lame
+    //stored in one single storage. Lame
     template<typename ConfigName>
-    inline auto& _RegisteredKeysVector()
+    inline auto& _RegisteredKeysStorage()
     {
         //prevents some "static init order fiasco" by defining the static variable below inside a function
         //that's what stores all the parameters btw
-        static std::vector<std::tuple<const KeyView,
-                                      TypeHash,
-                                      std::function<AnyTypeStorage(const std::string_view)>,
-                                      ParamType>> toReturn;
+        static std::list<std::tuple<const KeyView,                                         //config parameter key
+                                    std::function<AnyTypeStorage(const std::string_view)>, //deserialization function
+                                    ParamType,                                             //whether the parameter is Required or Optional
+                                    std::optional<AnyTypeStorage>>>                        //storage for a deserialized parameter
+        toReturn;
         return toReturn;
     }
 
@@ -39,27 +39,20 @@ namespace _register
     //lambda registers value. Simple.
     template<typename ConfigName,
              const StringLiteral registeredKey,
-             TypeHash registeredTypeHash,
              auto serializeFunc,
              ParamType paramType>
-    inline const auto _registerKey = std::invoke([]
+    inline const auto& _registerKey = std::invoke([]()->const std::optional<AnyTypeStorage>&
     {
-        _RegisteredKeysVector<ConfigName>().emplace_back
+        std::cout << std::string_view(registeredKey) << std::endl;
+        _RegisteredKeysStorage<ConfigName>().emplace_back
         (
             registeredKey,
-            registeredTypeHash,
             serializeFunc,
-            paramType
+            paramType,
+            std::nullopt
         );
-        return 0;
+        return std::get<3>(_RegisteredKeysStorage<ConfigName>().back()); //returns reference to std::optional from just created tuple in storage
     });
-
-    //you can call that
-    template<typename ConfigName>
-    const auto& getRegisteredKeys() noexcept
-    {
-        return _register::_RegisteredKeysVector<ConfigName>();
-    }
 }
 
 }
