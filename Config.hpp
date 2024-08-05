@@ -55,7 +55,7 @@ public:
     /////////////////////////////////////
     template<typename ReturnType,
              const StringLiteral key,
-             auto serializeFunc = serialize::getSerizlizeFunc<ReturnType>()>
+             auto serializeFunc = serialize::getSerizlizeFunc<const ReturnType>()>
     auto extract() const noexcept
     -> const ReturnType&;
 
@@ -81,7 +81,7 @@ public:
     /////////////////////////////////////
     template<typename ReturnType,
              const StringLiteral key,
-             auto serializeFunc = serialize::getSerizlizeFunc<ReturnType>()>
+             auto serializeFunc = serialize::getSerizlizeFunc<const ReturnType>()>
     auto extractOr(const ReturnType& fallbackValue) const noexcept
     -> const ReturnType&;
 
@@ -100,7 +100,7 @@ public:
     /////////////////////////////////////
     template<typename ReturnType,
              const StringLiteral key,
-             auto serializeFunc = serialize::getSerizlizeFunc<ReturnType>()>
+             auto serializeFunc = serialize::getSerizlizeFunc<const ReturnType>()>
     auto tryExtract() const noexcept
     -> std::optional<std::reference_wrapper<const ReturnType>>;
 
