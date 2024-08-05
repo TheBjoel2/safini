@@ -49,13 +49,13 @@ public:
     ///
     /// \param ReturnType Type of the argument(int, string, etc)
     /// \param key String literal of the config key("foo.bar")
-    /// \param serializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
+    /// \param deserializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
     ///
     /// \return const reference to object stored in Config instance
     /////////////////////////////////////
     template<typename ReturnType,
              const StringLiteral key,
-             auto serializeFunc = serialize::getSerizlizeFunc<const ReturnType>()>
+             auto deserializeFunc = serialize::getDeserializeFunc<const ReturnType>()>
     auto extract() const noexcept
     -> const ReturnType&;
 
@@ -69,7 +69,7 @@ public:
     ///
     /// \param ReturnType Type of the argument(int, string, etc)
     /// \param key String literal of the config key("foo.bar")
-    /// \param serializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
+    /// \param deserializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
     /// \param fallbackValue Const reference to fallback value
     ///
     /// \return either object present in a Config, or fallbackValue
@@ -81,7 +81,7 @@ public:
     /////////////////////////////////////
     template<typename ReturnType,
              const StringLiteral key,
-             auto serializeFunc = serialize::getSerizlizeFunc<const ReturnType>()>
+             auto deserializeFunc = serialize::getDeserializeFunc<const ReturnType>()>
     auto extractOr(const ReturnType& fallbackValue) const noexcept
     -> const ReturnType&;
 
@@ -94,13 +94,13 @@ public:
     ///
     /// \param ReturnType Type of the config value(int, string, etc)
     /// \param key String literal of the config key("foo.bar")
-    /// \param serializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
+    /// \param deserializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
     ///
     /// \return std::optional of an object
     /////////////////////////////////////
     template<typename ReturnType,
              const StringLiteral key,
-             auto serializeFunc = serialize::getSerizlizeFunc<const ReturnType>()>
+             auto deserializeFunc = serialize::getDeserializeFunc<const ReturnType>()>
     auto tryExtract() const noexcept
     -> std::optional<std::reference_wrapper<const ReturnType>>;
 

@@ -9,9 +9,9 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
     {
         //oh, I would love to use structured binding instead of that crap,
         //however you can't mix auto& and const auto& together
-        const auto& key           = std::get<0>(entry);
-        const auto& serializeFunc = std::get<1>(entry);
-        const auto& paramType     = std::get<2>(entry);
+        const auto& key             = std::get<0>(entry);
+        const auto& deserializeFunc = std::get<1>(entry);
+        const auto& paramType       = std::get<2>(entry);
         std::optional<AnyTypeStorage>& optionalStorage     = std::get<3>(entry);
 
         //splitting your "section.key" into "section" and "section keys"
@@ -33,7 +33,7 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
             continue;
         try
         {
-            optionalStorage.emplace(serializeFunc(param.value()));
+            optionalStorage.emplace(deserializeFunc(param.value()));
         }
         catch(const std::exception& exc)
         {
@@ -69,7 +69,7 @@ safini::Config<ConfigName>::~Config()
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, auto deserializeFunc>
 const ReturnType& safini::Config<ConfigName>::extract() const noexcept
 {
     //the code may break if you request volatile qualified thing
@@ -82,21 +82,21 @@ const ReturnType& safini::Config<ConfigName>::extract() const noexcept
     //registers the key to be a required key
     const auto& optionalRef = _register::_registerKey<ConfigName,
                                                       key,
-                                                      serializeFunc,
+                                                      deserializeFunc,
                                                       _register::Required>;
     //optional is guaranteed to have a value
     return optionalRef.value().template get<const ReturnType>();
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, auto deserializeFunc>
 const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallbackValue) const noexcept
 {
     static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
 
     const auto& optionalRef = _register::_registerKey<ConfigName,
                                                       key,
-                                                      serializeFunc,
+                                                      deserializeFunc,
                                                       _register::Required>;
     if(!optionalRef.has_value())
         return fallbackValue;
@@ -104,14 +104,14 @@ const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallba
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const safini::StringLiteral key, auto serializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, auto deserializeFunc>
 std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigName>::tryExtract() const noexcept
 {
     static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
 
     const auto& optionalRef = _register::_registerKey<ConfigName,
                                                       key,
-                                                      serializeFunc,
+                                                      deserializeFunc,
                                                       _register::Required>;
     if(!optionalRef.has_value())
         return {};

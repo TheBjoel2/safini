@@ -39,7 +39,7 @@ namespace _register
     //lambda registers value. Simple.
     template<typename ConfigName,
              const StringLiteral registeredKey,
-             auto serializeFunc,
+             auto deserializeFunc,
              ParamType paramType>
     inline const auto& _registerKey = std::invoke([]()->const std::optional<AnyTypeStorage>&
     {
@@ -47,7 +47,7 @@ namespace _register
         _RegisteredKeysStorage<ConfigName>().emplace_back
         (
             registeredKey,
-            serializeFunc,
+            deserializeFunc,
             paramType,
             std::nullopt
         );
