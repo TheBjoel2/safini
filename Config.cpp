@@ -57,11 +57,15 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
 template<typename ConfigName>
 safini::Config<ConfigName>::~Config()
 {
-    //need to clear that storage like so because I'm guaranteeing to destruct
-    //objects stored in storage in the reverse order of them constructed
+    //need to reset things in that storage because I'm guaranteeing to destruct
+    //them at the end of Config's lifetime, and also
+    //destruct them in the the reverse order of them constructed
     auto& keysStorage = _register::_RegisteredKeysStorage<ConfigName>();
-    while(!keysStorage.empty())
-        keysStorage.pop_back();
+    for(auto iter = keysStorage.rbegin(); iter != keysStorage.rend(); iter++)
+    {
+        auto& optionalRef = std::get<3>(*iter);
+        optionalRef.reset();
+    }
 }
 
 template<typename ConfigName>
