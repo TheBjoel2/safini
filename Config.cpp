@@ -12,7 +12,7 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
         const auto& key             = std::get<0>(entry);
         const auto& deserializeFunc = std::get<1>(entry);
         const auto& paramType       = std::get<2>(entry);
-        std::optional<AnyTypeStorage>& optionalStorage     = std::get<3>(entry);
+        auto& optionalStorage       = std::get<3>(entry);
 
         //splitting your "section.key" into "section" and "section keys"
         //see https://en.wikipedia.org/wiki/INI_file

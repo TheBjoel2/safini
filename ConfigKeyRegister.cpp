@@ -26,6 +26,11 @@ namespace _register
     {
         //prevents some "static init order fiasco" by defining the static variable below inside a function
         //that's what stores all the parameters btw
+
+        //oh yeah, you probably wonder why I store this data inside std::list instead of std::vector
+        //well, if I store it inside vector, then occasionally, I will get a vector capacity upsize
+        //that will invalidate every single reference to objects stored inside vector
+        //we have quite a lot of such references, actually. look at what "inline const auto& _registerKey" returns
         static std::list<std::tuple<const KeyView,                                         //config parameter key
                                     std::function<AnyTypeStorage(const std::string_view)>, //deserialization function
                                     ParamType,                                             //whether the parameter is Required or Optional
