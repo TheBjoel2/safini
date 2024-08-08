@@ -58,12 +58,10 @@ template<typename ConfigName>
 safini::Config<ConfigName>::~Config()
 {
     //need to reset things in that storage because I'm guaranteeing to destruct
-    //them at the end of Config's lifetime, and also
-    //destruct them in the the reverse order of them constructed
-    auto& keysStorage = _register::_RegisteredKeysStorage<ConfigName>();
-    for(auto iter = keysStorage.rbegin(); iter != keysStorage.rend(); iter++)
+    //them at the end of Config's lifetime
+    for(auto& entry : _register::_RegisteredKeysStorage<ConfigName>())
     {
-        auto& optionalRef = std::get<3>(*iter);
+        auto& optionalRef = std::get<3>(entry);
         optionalRef.reset();
     }
 }
