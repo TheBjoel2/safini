@@ -48,7 +48,6 @@ namespace _register
              ParamType paramType>
     inline const auto& _registerKey = std::invoke([]()->const std::optional<AnyTypeStorage>&
     {
-        std::cout << std::string_view(registeredKey) << std::endl;
         _RegisteredKeysStorage<ConfigName>().emplace_back
         (
             registeredKey,
