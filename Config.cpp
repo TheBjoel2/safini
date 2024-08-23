@@ -95,7 +95,7 @@ const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallba
     const auto& optionalRef = _register::_registerKey<ConfigName,
                                                       key,
                                                       deserializeFunc,
-                                                      _register::Required>;
+                                                      _register::Optional>;
     if(!optionalRef.has_value())
         return fallbackValue;
     return optionalRef.value().template get<const ReturnType>();
@@ -110,7 +110,7 @@ std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigNam
     const auto& optionalRef = _register::_registerKey<ConfigName,
                                                       key,
                                                       deserializeFunc,
-                                                      _register::Required>;
+                                                      _register::Optional>;
     if(!optionalRef.has_value())
         return {};
     return optionalRef.value().template get<const ReturnType>();
