@@ -1,9 +1,13 @@
 #include "StringLiteral.hpp"
 #include "RxiIniReader.hpp"
 #include "AnyTypeStorage.hpp"
+#include "TypeHash.hpp"
+#include "PairHash.hpp"
 #include "Serialize.hpp"
 #include <string_view>
 #include <optional>
+#include <unordered_map>
+#include <vector>
 #include <functional>
 
 namespace safini
@@ -25,17 +29,12 @@ public:
     ///
     /// Loads config file into memory, finds all the required keys,
     /// extracts values and passes them to object constructors.
-    /// Stores the constructed objects inside of some internal storage.
-    /// The lifetime of these objects ends at the end of the Config lifetime.
+    /// Stores the constructed objects inside of itself.
     ///
     /// \param ConfigName UNIQUE name of the config. Not necessarily a config filename
     /// \param filename Runtime defined config filename
     ///
     /// \see extract extractOr tryExtract
-    ///
-    /// \note
-    /// Creating two Config instances with the same ConfigName
-    /// results in logical errors. Do not do that.
     /////////////////////////////////////
     Config(const std::string_view filename);
 
@@ -73,11 +72,6 @@ public:
     /// \param fallbackValue Const reference to fallback value
     ///
     /// \return either object present in a Config, or fallbackValue
-    ///
-    /// \note
-    /// if you construct a fallbackValue at the line where you call extractOr,
-    /// you basically destroy the purpose of it being no-fail guaranteed
-    /// unless your constructible object is by itself guaranteed to be constructed.
     /////////////////////////////////////
     template<typename ReturnType,
              const StringLiteral key,
@@ -92,6 +86,11 @@ public:
     /// or contain nothing in case of the provided key is not present in a config file,
     /// or passing it to a function constructing the object failed.
     ///
+    /// \note
+    /// if you construct a fallbackValue at the line where you call extractOr,
+    /// you basically destroy the purpose of it being no-fail guaranteed
+    /// unless your constructible object is by itself guaranteed to be constructed.
+    ///
     /// \param ReturnType Type of the config value(int, string, etc)
     /// \param key String literal of the config key("foo.bar")
     /// \param deserializeFunc function that converts std::string_view to AnyTypeStorage<ReturnType>
@@ -104,15 +103,12 @@ public:
     auto tryExtract() const noexcept
     -> std::optional<std::reference_wrapper<const ReturnType>>;
 
-    /////////////////////////////////////
-    /// \brief Destroys all the objects in the internal storage
-    ///
-    /// \note Generally you should not call destructors by yourself
-    /////////////////////////////////////
-    ~Config();
-
 private:
     RxiIniReader m_IniReader;
+
+    using Key = std::pair<std::string_view, TypeHash>;
+    using Storage = AnyTypeStorage;
+    std::unordered_map<Key, Storage, PairHash> m_KeysMap{};
 };
 
 }
