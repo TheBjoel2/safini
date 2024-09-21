@@ -46,7 +46,7 @@ safini::Config<ConfigName>::Config(const std::string_view filename):
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const safini::StringLiteral key, auto deserializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, const auto deserializeFunc>
 const ReturnType& safini::Config<ConfigName>::extract() const noexcept
 {
     //the code may break if you request volatile qualified thing
@@ -64,11 +64,11 @@ const ReturnType& safini::Config<ConfigName>::extract() const noexcept
                                   deserializeFunc,
                                   _register::Required>;
 
-    return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<ReturnType>())).template get<const ReturnType>();
+    return m_KeysMap.at(std::make_pair(std::string_view(key), getHashFromType<const ReturnType>())).template get<const ReturnType>();
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const safini::StringLiteral key, auto deserializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, const auto deserializeFunc>
 const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallbackValue) const noexcept
 {
     static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
@@ -79,14 +79,14 @@ const ReturnType& safini::Config<ConfigName>::extractOr(const ReturnType& fallba
                                   deserializeFunc,
                                   _register::Optional>;
 
-    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
+    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<const ReturnType>()));
     if(param == m_KeysMap.cend())
         return fallbackValue;
     return param->second.template get<const ReturnType>();
 }
 
 template<typename ConfigName>
-template<typename ReturnType, const safini::StringLiteral key, auto deserializeFunc>
+template<typename ReturnType, const safini::StringLiteral key, const auto deserializeFunc>
 std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigName>::tryExtract() const noexcept
 {
     static_assert(!std::is_volatile_v<ReturnType>, "Volatile qualified parameters in config are not allowed");
@@ -97,7 +97,7 @@ std::optional<std::reference_wrapper<const ReturnType>> safini::Config<ConfigNam
                                   deserializeFunc,
                                   _register::Optional>;
 
-    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<ReturnType>()));
+    const auto param = m_KeysMap.find(std::make_pair(std::string_view(key), getHashFromType<const ReturnType>()));
     if(param == m_KeysMap.cend())
         return {};
     return param->second.template get<const ReturnType>();
